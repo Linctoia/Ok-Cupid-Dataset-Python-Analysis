@@ -1,0 +1,672 @@
+# IMPORTING THE NECESSESARY TOOLS AND THE DATA
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+# IMPORTING THE NECESSESARY TOOLS AND THE DATA
+​
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+​
+[ ]
+
+df_okc = pd.read_csv("https://raw.githubusercontent.com/MissionU/python_public/master/profiles_no_essay.csv")
+ 
+​
+
+[ ]
+
+df_okc.head()
+
+[ ]
+
+missing_values = ["no",-1,"-1","NaN"]
+[ ]
+
+#  Reloading the CSV in order to naturally filter out some bad values as NaN
+  df_okc = pd.read_csv("https://raw.githubusercontent.com/MissionU/python_public/master/profiles_no_essay.csv", na_values= missing_values)
+
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Looking at the shape of the Data
+df_okc.shape
+
+[ ]
+
+# Finding out all the different colulmns
+df_okc.columns
+
+[ ]
+
+df_okc.info()
+
+[ ]
+
+#  CLEANING AND ANALYZING DATA
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+df_okc["age"] = pd.to_numeric(df_okc["age"],errors="coerce")
+[ ]
+
+# Two Outliers in Age column, will take a look at those rows
+df_okc["age"].value_counts()
+
+[ ]
+
+# The two outlier rows are mostly null, I will remove them from the main df
+df_okc[df_okc["age"] >=109]
+
+[ ]
+
+df_okc.age = df_okc.age.replace(110, np.nan)
+[ ]
+
+df_okc.age = df_okc.age.replace(109, np.nan)
+[ ]
+
+# Fixed
+df_okc.age.value_counts()
+
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Body Type data has a weird value in it, will check it out
+df_okc["body_type"].value_counts()
+
+[ ]
+
+df_okc[df_okc.body_type == "1) quality companionship (and everything that entails)<br />\n<br />\n2) windy shorelines<br />\n<br />\n3) music<br />\n<br />\n4) dogs - they'll take over after the bombs fall. they're grooming\nthemselves to be world leaders, studying us and our mannerisms\n(learning where we went wrong)<br />\n<br />\n5) water - probably should be #1 but it's a miracle i'm actually\nfilling this thing out to completion so i won't bother to elevate\nits status.<br />\n<br />\n6) walking - addict."]
+
+[ ]
+
+# 20593 has weird results in a lot of the columns, will drop this one as well
+df_okc = df_okc.drop([20593])
+[ ]
+
+df_okc.body_type = df_okc.body_type.astype("category")
+[ ]
+
+# fixed
+df_okc.body_type.value_counts()
+
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Diet data looks good
+df_okc.diet.value_counts()
+
+[ ]
+
+df_okc.diet = df_okc.diet.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Drinks data looks good
+df_okc.drinks.value_counts()
+
+[ ]
+
+df_okc.drinks = df_okc.drinks.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Drugs data looks good
+df_okc.drugs.value_counts()
+[ ]
+
+# Cut down on storage usage
+df_okc.drugs = df_okc.drugs.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Education data looks clean, although there are a surprising amount of OKC users in this dataset who have attended Space Camp
+df_okc.education.value_counts()
+[ ]
+
+df_okc.education = df_okc.education.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Ethnicity Data looks clean
+df_okc.ethnicity.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Weird data values in Height that need to be adressed
+df_okc.height.value_counts()
+[ ]
+
+# Looking at Height Null values
+df_okc["height"].isnull().values.any()
+[ ]
+
+# Rows with null height data contain mostly null data, will drop these from the data frame
+df_okc[df_okc["height"].isnull() == True]
+[ ]
+
+df_okc = df_okc.drop([20592,36427,54001,58982])
+[ ]
+
+# Cleared the nulls in height
+df_okc["height"].isnull().values.any()
+[ ]
+
+df_okc.height = pd.to_numeric(df_okc.height,errors ="coerce")
+[ ]
+
+# There are still some messed up values for height
+df_okc.height.value_counts()
+[ ]
+
+# If you are three feet tall or below I am considering you an outlier
+df_okc[df_okc.height <= 36]
+[ ]
+
+# Need to reset the index in order to perform a for loop
+df_okc = df_okc.reset_index(drop = True)
+[ ]
+
+count = 0
+​
+for i in df_okc.height:
+  if df_okc.loc[count,"height"] > 36:
+    df_okc.loc[count,"height"] = df_okc.loc[count,"height"]
+  else:
+    df_okc.loc[count,"height"] = np.nan
+  
+  count += 1 
+[ ]
+
+df_okc[df_okc.height <= 36]
+[ ]
+
+# Height data looks much better
+df_okc.height.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Income data looks clean
+df_okc.income.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Job data looks clean
+df_okc.job.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Taking a look at the state of the data
+df_okc.info()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# last_online values are in a weird format and are listed as Objects instead of dates, will parse through to fix them.
+df_okc.last_online
+[ ]
+
+count = 0
+​
+for i in df_okc.last_online:
+  df_okc.loc[count,"last_online"] = pd.to_datetime(df_okc.loc[count,"last_online"], format = "%Y-%m-%d-%H-%M")
+  
+  count +=1
+[ ]
+
+df_okc.last_online = df_okc.last_online.astype("datetime64")
+[ ]
+
+df_okc.last_online.head()
+[ ]
+
+# Successfully parsed and converted string dates into Datetime Format
+df_okc.info()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Most of the data collected is from users from California, in particular the Bay Area. The data itself looks clean
+df_okc.location.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# The values in offspring are still readable but could be cleaned up with RegEx
+df_okc["offspring"].value_counts()
+[ ]
+
+import re
+[ ]
+
+# Reset the index of the main DF
+df_okc = df_okc.reset_index(drop = True)
+[ ]
+
+pattern = r"doesn&rsquo;t"
+replacement = r"doesn't"
+​
+[ ]
+
+count = 0
+​
+for i in df_okc["offspring"]:
+  df_okc.loc[count,"offspring"] = re.sub(pattern,replacement,str(df_okc.loc[count,"offspring"]))
+  
+  count +=1
+[ ]
+
+df_okc["offspring"] =df_okc["offspring"].replace("nan",np.nan)
+[ ]
+
+# Offspring Data looks much cleaner
+df_okc.offspring.value_counts()
+[ ]
+
+# Cut down on Storage usage now that it's clean
+df_okc["offspring"] = df_okc["offspring"].astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Orientation data looks clean, although there is a surprisingly overwhelming number of Straight users just on first glance
+df_okc.orientation.value_counts()
+[ ]
+
+df_okc.orientation = df_okc.orientation.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Pets looks clean
+df_okc.pets.value_counts()
+[ ]
+
+df_okc.pets = df_okc.pets.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Religion data looks clean
+df_okc.religion.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Sex data looks clean
+df_okc["sex"].value_counts()
+[ ]
+
+df_okc.sex = df_okc.sex.astype("category")
+[ ]
+
+df_okc["sex"].isnull().values.any()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Sign data needs to be cleaned with RegEx
+df_okc.sign.value_counts()
+[ ]
+
+# Need to reset the index since I'm doing another for loop
+df_okc = df_okc.reset_index(drop = True)
+[ ]
+
+pattern = r"&rsquo;"
+​
+replacement = r"'"
+[ ]
+
+count = 0
+​
+for i in df_okc.sign:
+  df_okc.loc[count,"sign"] = re.sub(pattern,replacement,str(df_okc.loc[count,"sign"]))
+  
+  count += 1
+  
+[ ]
+
+df_okc.sign = df_okc.sign.replace("nan",np.nan)
+[ ]
+
+# Sign Data Looks much cleaner
+df_okc.sign.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Smokes looks good 
+# People seem to be uncomfortable putting information about whether they smoke or not however
+df_okc.smokes.value_counts()
+[ ]
+
+df_okc.smokes = df_okc.smokes.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Speaks data looks clean
+df_okc.speaks.value_counts()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# Status is clean except for the weird "Unknown"s. Will look into that
+df_okc.status.value_counts()
+[ ]
+
+# The "unknown"'s' other data columns looks fine, I will consider the "unknown"s to be outliers. 
+df_okc[df_okc.status == "unknown"]
+[ ]
+
+df_okc.status = df_okc.status.replace("unknown",np.nan)
+[ ]
+
+df_okc.status.value_counts()
+[ ]
+
+df_okc.status = df_okc.status.astype("category")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+df_okc.info()
+[ ]
+
+# After everything is cleaned, these are the nulls that are left
+# Most OKC users refused to put information for income and whether or not they want offspring (uncomfortable questions)
+# Most refusued to put info on whether or not they smoke as well
+​
+# Practically everyone entered in their age, height, location, sexual orientation, sex, relationship status, and the languages they speak
+​
+df_okc.isnull().sum()
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+# ANALYSIS AND DATA VIZ
+[ ]
+
+# Most Users between 20 and 30
+​
+sns.set_context("notebook")
+sns.set_style("whitegrid")
+​
+sub_age = pd.DataFrame(df_okc[df_okc.age.isnull() == False])
+​
+plt = sns.distplot(sub_age["age"],kde = False)
+​
+plt.set_title("Distribution of Age on OKC")
+plt.set_ylabel("User Count")
+plt.set_xlabel("Age")
+[ ]
+
+​
+[ ]
+
+sub_orientation = pd.DataFrame(df_okc.orientation.dropna())
+[ ]
+
+plt = sns.countplot(sub_orientation.orientation)
+​
+plt.set_title("Sexual Orientation Breakdown on OKC")
+[ ]
+
+​
+[ ]
+
+sub_body = pd.DataFrame(df_okc.body_type.dropna())
+[ ]
+
+sub_body.body_type.value_counts()
+[ ]
+
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.countplot(sub_body.body_type, order =["used up","rather not say","skinny","thin","average","fit","athletic","Jacked","a little extra","curvy","full figured","overweight"], ax = ax)
+​
+ax.set_title("Body Type Distribtuion on OKC")
+​
+ax.set_ylabel("User Count")
+ax.set_xlabel("Body Type")
+​
+ax.set_xticklabels(labels = ax.get_xticklabels(), rotation = 40, ha = "right")
+​
+[ ]
+
+# Most people range from average to athletic, with a sizeable subgroup of users identifying between "a little extra" and "full figured"
+[ ]
+
+​
+[ ]
+
+sub_pets = pd.DataFrame(df_okc.pets.dropna())
+[ ]
+
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.countplot(sub_pets.pets, ax = ax)
+​
+ax.set_title("How Users feel about Pets on OKC")
+​
+ax.set_ylabel("User Count")
+ax.set_xlabel("Animal ownership/Sentiment")
+ax.set_xticklabels(labels = ax.get_xticklabels(), rotation = 40, ha = "right")
+[ ]
+
+​
+[ ]
+
+​
+[ ]
+
+income_subset = pd.DataFrame(df_okc.income.dropna())
+[ ]
+
+# Most OKC users within the Dataset are between poor and middle class, except for a surprising portion of about 500 Millionaires. Some of those may have been put as a joke, or a means of peacocking. I can't analyze if they're lying. 
+​
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.countplot(income_subset.income, ax = ax)
+​
+ax.set_title("Distribution of OKC Users by Income Bucket")
+​
+​
+plt.show()
+[ ]
+
+income_subset.income.value_counts()
+[ ]
+
+drugs_subset = pd.DataFrame(df_okc.drugs.dropna())
+[ ]
+
+# Most people denied to even answer this question, but for the OKC users that did the vast majority have a hard stance against drug use
+​
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.countplot(drugs_subset.drugs,ax =ax)
+​
+ax.set_title("Distribution of Users based on their Relationship w/Drugs")
+[ ]
+
+smoke_subset = pd.DataFrame(df_okc.smokes.dropna())
+[ ]
+
+# Every user who answered whether or not they smoke, smokes to some varying degree. 
+# Users who do not smoke did not bother to answer this Question when creatinga  profile. 
+​
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.countplot(smoke_subset.smokes, ax= ax)
+[ ]
+
+df_okc.head()
+[ ]
+
+diet_subset = pd.DataFrame(df_okc.diet.dropna())
+[ ]
+
+# The vast majority of OKC users will eat anything, with a small portion of users being vegetarian and an even smaller cut of vegans
+​
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.countplot(diet_subset.diet, ax = ax)
+​
+​
+ax.set_title("Diet User Distribution on OKC")
+ax.set_xticklabels(labels = ax.get_xticklabels(), rotation = 40, ha = "right")
+[ ]
+
+height_subset = pd.DataFrame(df_okc.height.dropna())
+[ ]
+
+fig, ax = plt.subplots(figsize=(20,10))
+​
+sns.distplot(height_subset.height, ax= ax, kde = False)
+​
+ax.set_title("Height Distribution on OKC")
+​
+ax.
+
+Final OkCupid - Workbook v2.4.ipynb
+Final OkCupid - Workbook v2.4.ipynb_
+Laying out notebook...
